@@ -713,6 +713,13 @@
   .bj-hand-result.lose { color: var(--card-red); }
   .bj-hand-result.push { color: var(--text-dim); }
   .bj-hand-result.blackjack { color: var(--gold); }
+  .bj-total {
+    display: inline-block; min-width: 1.4em; padding: 0 5px; margin-left: 4px;
+    font-size: 0.72rem; font-weight: 700; color: var(--bg); background: var(--gold);
+    border-radius: 6px; text-align: center; font-variant-numeric: tabular-nums; vertical-align: middle;
+  }
+  .bj-total:empty { display: none; }
+  .bj-total.bust { background: var(--card-red); color: #fff; }
 
   .bj-actions {
     display: flex;
@@ -852,9 +859,179 @@
     .bj-hand-box { min-width: 100px; padding: 8px; }
     .bj-hand-cards .card-slot { width: 44px; height: 62px; }
   }
+
+  /* ══════════════════════════════════════ */
+  /* ── Multiplayer ── */
+  /* ══════════════════════════════════════ */
+  .mp-overlay {
+    position: fixed; inset: 0; z-index: 2000;
+    background: radial-gradient(ellipse at 50% 30%, rgba(30,58,47,0.5), rgba(10,12,18,0.97) 70%);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .mp-overlay.hidden { display: none; }
+  .mp-card {
+    background: linear-gradient(160deg, #1a1d27, #12141c);
+    border: 1px solid var(--table-rim); border-radius: 18px;
+    padding: 30px 26px; width: 350px; max-width: 92vw;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.7); text-align: center;
+  }
+  .mp-card h2 {
+    font-family: 'Playfair Display', serif; color: var(--gold);
+    letter-spacing: 4px; font-size: 1.3rem; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .mp-card .mp-tag {
+    color: var(--text-dim); font-size: 0.68rem; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 22px;
+  }
+  .mp-input {
+    width: 100%; background: #0d0f16; border: 1px solid var(--table-rim);
+    color: var(--text); padding: 12px 14px; border-radius: 10px; font-size: 0.95rem;
+    margin-bottom: 12px; text-align: center; letter-spacing: 1px; font-family: inherit;
+  }
+  .mp-input:focus { outline: none; border-color: var(--gold); }
+  .mp-input.code { text-transform: uppercase; font-weight: 600; letter-spacing: 4px; }
+  .mp-btn {
+    width: 100%; background: var(--gold); color: #1a1409; border: none;
+    padding: 12px; border-radius: 10px; font-weight: 600; letter-spacing: 1px;
+    font-size: 0.85rem; cursor: pointer; margin-bottom: 10px; text-transform: uppercase;
+    transition: filter 0.15s, transform 0.1s; font-family: inherit;
+  }
+  .mp-btn:hover { filter: brightness(1.08); }
+  .mp-btn:active { transform: translateY(1px); }
+  .mp-btn:disabled { opacity: 0.4; cursor: default; }
+  .mp-btn.secondary { background: transparent; color: var(--text); border: 1px solid var(--table-rim); }
+  .mp-or { color: var(--text-dim); font-size: 0.66rem; margin: 6px 0 12px; letter-spacing: 3px; }
+  .mp-err { color: #e0998a; font-size: 0.74rem; min-height: 1.1em; margin-bottom: 8px; }
+  .mp-hint { color: var(--text-dim); font-size: 0.66rem; margin-top: 14px; line-height: 1.5; }
+  .mp-row { display: flex; gap: 8px; }
+  .mp-row .mp-input { margin-bottom: 0; flex: 1; }
+  .mp-row .mp-btn { width: auto; margin-bottom: 0; padding: 12px 16px; flex-shrink: 0; }
+
+  /* Leaderboard */
+  .mp-leaderboard {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 204px; z-index: 900;
+    background: linear-gradient(180deg, #13151d, #0d0f15);
+    border-right: 1px solid var(--table-rim);
+    padding: 16px 12px; display: flex; flex-direction: column; gap: 7px; overflow-y: auto;
+  }
+  .mp-leaderboard.hidden { display: none; }
+  .mp-lb-title { color: var(--gold); font-size: 0.66rem; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+  .mp-lb-room {
+    color: var(--text-dim); font-size: 0.66rem; text-align: center; margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .mp-lb-room b { color: var(--gold); letter-spacing: 3px; font-size: 0.9rem; display: block; margin-top: 2px; }
+  .mp-lb-player {
+    display: flex; align-items: center; gap: 9px; padding: 8px 9px; border-radius: 11px;
+    background: rgba(255,255,255,0.025); border: 1px solid transparent; transition: all 0.2s;
+  }
+  .mp-lb-player.self { border-color: var(--gold-dim); }
+  .mp-lb-player.turn { background: rgba(196,165,90,0.14); border-color: var(--gold); box-shadow: 0 0 12px rgba(196,165,90,0.2); }
+  .mp-lb-player.offline { opacity: 0.4; }
+  .mp-lb-info { flex: 1; min-width: 0; }
+  .mp-lb-name { font-size: 0.76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mp-lb-name .host-tag { color: var(--gold); font-size: 0.6rem; letter-spacing: 1px; }
+  .mp-lb-chips { font-size: 0.72rem; color: var(--gold); font-variant-numeric: tabular-nums; margin-top: 1px; }
+  .mp-lb-bet { font-size: 0.62rem; color: var(--text-dim); }
+  .mp-avatar {
+    width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.3);
+    font-family: 'Inter', sans-serif;
+  }
+  .mp-leave { margin-top: auto; background: transparent; color: var(--text-dim); border: 1px solid var(--table-rim); }
+  .mp-leave:hover { color: var(--text); filter: none; }
+
+  /* Initial-stamped chips */
+  .chip.mp-initial, .chip-ghost.mp-initial { color: #fff; }
+
+  /* Open-multiplayer button (top-right) */
+  .mp-open-btn {
+    position: fixed; top: 14px; right: 16px; z-index: 901;
+    background: linear-gradient(160deg, #1a1d27, #12141c); color: var(--gold);
+    border: 1px solid var(--table-rim); border-radius: 10px; padding: 9px 14px;
+    font-family: inherit; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; font-weight: 600; transition: border-color 0.15s, transform 0.1s;
+  }
+  .mp-open-btn:hover { border-color: var(--gold); }
+  .mp-open-btn:active { transform: translateY(1px); }
+  .mp-open-btn.hidden { display: none; }
+
+  .mp-card { position: relative; }
+  .mp-close {
+    position: absolute; top: 8px; right: 12px; background: none; border: none;
+    color: var(--text-dim); font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 2px 6px;
+    font-family: inherit;
+  }
+  .mp-close:hover { color: var(--text); }
+
+  .mp-lb-room { cursor: pointer; }
+  .mp-toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(8px);
+    background: var(--gold); color: #1a1409; padding: 11px 20px; border-radius: 10px;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; z-index: 3000;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.55); opacity: 0; pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .mp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  body.mp-on { }
+  @media (min-width: 821px) {
+    body.mp-on { padding-left: 204px; }
+    body.mp-on .strategy-panel { left: 204px; }
+    body.mp-on .table-container { max-width: min(900px, calc(100vw - 240px)); }
+    body.mp-on .bj-table-container { max-width: min(900px, calc(100vw - 240px)); }
+    body.mp-on .road-container { max-width: calc(100vw - 240px); }
+  }
+  @media (max-width: 820px) {
+    .mp-leaderboard {
+      width: 100%; height: auto; bottom: auto; flex-direction: row; overflow-x: auto; overflow-y: hidden;
+      gap: 6px; padding: 8px 56px 8px 8px; border-right: none; border-bottom: 1px solid var(--table-rim);
+      align-items: stretch;
+    }
+    .mp-lb-title, .mp-lb-room { display: none; }
+    .mp-lb-player { flex: 0 0 auto; flex-direction: column; align-items: center; min-width: 60px; padding: 5px 6px; gap: 2px; text-align: center; }
+    .mp-lb-info { flex: none; }
+    .mp-lb-name { max-width: 58px; font-size: 0.6rem; }
+    .mp-lb-chips { font-size: 0.6rem; }
+    .mp-lb-bet { display: none; }
+    .mp-avatar { width: 24px; height: 24px; font-size: 0.72rem; }
+    .mp-leave { position: fixed; right: 8px; top: 8px; margin: 0; width: auto; padding: 6px 10px; font-size: 0.7rem; z-index: 901; }
+    body.mp-on { padding-top: 4px; }
+  }
 </style>
 </head>
 <body>
+
+<!-- ═══ MULTIPLAYER ═══ -->
+<button class="mp-open-btn" id="mpOpenBtn">◇ Multiplayer</button>
+
+<!-- ═══ MULTIPLAYER LOBBY ═══ -->
+<div class="mp-overlay hidden" id="mpOverlay">
+  <div class="mp-card">
+    <button class="mp-close" id="mpCloseBtn" aria-label="Close">&times;</button>
+    <h2>Casino de Bon Amis</h2>
+    <div class="mp-tag">Play together</div>
+    <div class="mp-err" id="mpErr"></div>
+    <input class="mp-input" id="mpName" maxlength="14" placeholder="Your name" autocomplete="off">
+    <button class="mp-btn" id="mpCreateBtn">Create a table</button>
+    <div class="mp-or">— or join —</div>
+    <div class="mp-row">
+      <input class="mp-input code" id="mpCode" maxlength="4" placeholder="CODE" autocomplete="off">
+      <button class="mp-btn secondary" id="mpJoinBtn">Join</button>
+    </div>
+    <div class="mp-hint" id="mpHint">Create a table and share the 4-letter code with friends. Everyone starts with $10,000.</div>
+  </div>
+</div>
+
+<!-- ═══ LEADERBOARD ═══ -->
+<div class="mp-leaderboard hidden" id="mpLeaderboard">
+  <div class="mp-lb-title">Leaderboard</div>
+  <div class="mp-lb-room">Table<b id="mpRoomCode">····</b></div>
+  <div id="mpPlayerList"></div>
+  <button class="mp-btn mp-leave" id="mpLeaveBtn">Leave</button>
+</div>
 
 <div class="header">
   <h1>Casino de Bon Amis</h1>
@@ -953,7 +1130,7 @@
 <div class="bj-table-container">
   <div class="bj-table">
     <div class="bj-dealer-area">
-      <div class="hand-label">Dealer</div>
+      <div class="hand-label">Dealer <span class="bj-total" id="bjDealerTotal"></span></div>
       <div class="bj-dealer-cards" id="bjDealerCards"></div>
     </div>
     <div class="bj-hands-row" id="bjHandsRow"></div>
@@ -1227,6 +1404,7 @@ function clearDropTargets() {
 }
 
 function onChipPointerDown(e) {
+  if (window.MP && MP.active) return;
   if (phase !== 'betting') return;
   const btn = e.target.closest('.chip-btn');
   if (!btn) return;
@@ -1308,6 +1486,7 @@ function onChipPointerCancel(e) {
 
 // Also allow clicking bet zones (tap to place selected amount)
 function onZoneClick(e) {
+  if (window.MP && MP.active) return;
   e.stopPropagation();
   if (phase !== 'betting') return;
   if (chipDrag) return; // ignore if we just finished a drag
@@ -1325,6 +1504,7 @@ function onZoneClick(e) {
 
 // Allow dragging chips OFF bet zones
 function onBetChipPointerDown(e) {
+  if (window.MP && MP.active) return;
   if (phase !== 'betting') return;
   const chip = e.target.closest('.chip-stack .chip');
   if (!chip) return;
@@ -1613,6 +1793,7 @@ function updateVisibleScores() {
 // ══════════════════════════════════════
 
 function onCardPointerDown(e) {
+  if (window.MP && MP.active) return;
   if (phase !== 'revealing' || !waitingForUser) return;
   if (chipDrag) return;
 
@@ -1722,8 +1903,9 @@ document.addEventListener('contextmenu', e => {
 
 // Click table or anywhere to continue after round ends
 document.querySelector('.table').addEventListener('click', function(e) {
-  if (phase === 'done' && !e.target.closest('.result-banner')) { newRound(); return; }
-  if (phase === 'betting' && !e.target.closest('.bet-zone')) deal();
+  const ph = (window.MP && MP.active) ? ((MP.bac && MP.bac.phase) || 'betting') : phase;
+  if (ph === 'done' && !e.target.closest('.result-banner')) { newRound(); return; }
+  if (ph === 'betting' && !e.target.closest('.bet-zone')) deal();
 });
 
 // ══════════════════════════════════════
@@ -2214,6 +2396,7 @@ function bjClearDropTargets() {
 
 // Allow dragging chips OFF BJ hand boxes
 $('bjHandsRow').addEventListener('pointerdown', function(e) {
+  if (window.MP && MP.active) return;
   if (bjPhase !== 'betting') return;
   const chip = e.target.closest('.chip-stack .chip');
   if (!chip) return;
@@ -2235,6 +2418,7 @@ $('bjHandsRow').addEventListener('pointerdown', function(e) {
 }, { passive: false });
 
 $('bjChipTray').addEventListener('pointerdown', function(e) {
+  if (window.MP && MP.active) return;
   if (bjPhase !== 'betting') return;
   const btn = e.target.closest('.chip-btn');
   if (!btn) return;
@@ -2326,17 +2510,22 @@ document.addEventListener('pointercancel', function(e) {
   let lastTap = 0;
   let swipeStart = null;
 
+  const mpActive = () => window.MP && MP.active;
+  const effBjPhase = () => mpActive() ? ((MP.bj && MP.bj.phase) || 'betting') : bjPhase;
+
   table.addEventListener('pointerdown', function(e) {
-    if (bjPhase !== 'playing') return;
+    if (effBjPhase() !== 'playing') return;
+    if (mpActive() && !MP.isMyBjTurn()) return;
     if (e.target.closest('.chip-stack, .chip-btn, .bj-hand-box.no-bet')) return;
     swipeStart = { x: e.clientX, y: e.clientY, time: Date.now() };
   });
 
   table.addEventListener('pointerup', function(e) {
     if (e.target.closest('.chip-stack, .chip-btn')) return;
+    const phase = effBjPhase();
 
     // Done phase: click anywhere to start new round
-    if (bjPhase === 'done') {
+    if (phase === 'done') {
       swipeStart = null;
       lastTap = 0;
       bjNewRound();
@@ -2344,7 +2533,7 @@ document.addEventListener('pointercancel', function(e) {
     }
 
     // Betting phase: click table (not hand boxes) to deal
-    if (bjPhase === 'betting') {
+    if (phase === 'betting') {
       if (e.target.closest('.bj-hand-box')) return;
       swipeStart = null;
       lastTap = 0;
@@ -2352,7 +2541,8 @@ document.addEventListener('pointercancel', function(e) {
       return;
     }
 
-    if (bjPhase !== 'playing') return;
+    if (phase !== 'playing') return;
+    if (mpActive() && !MP.isMyBjTurn()) return;
     if (e.target.closest('.bj-hand-box.no-bet')) return;
 
     // Swipe detection
@@ -3044,6 +3234,7 @@ renderHistory();
 bjRenderBettingHands();
 
 window.addEventListener('resize', function() {
+  if (window.MP && MP.active) return;
   if (bjPhase === 'betting' && currentGame === 'blackjack') {
     const maxHands = bjGetMaxHands();
     // Return bets on hands that no longer fit
@@ -3140,6 +3331,1065 @@ $('stratContent').innerHTML =
   buildStratTable('Hard Totals', hardLabels, hardData) +
   buildStratTable('Soft Totals', softLabels, softData) +
   buildStratTable('Pairs', pairLabels, pairData);
+</script>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ── MULTIPLAYER (Firebase Realtime DB) ── -->
+<!-- ═══════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ──────────────────────────────────────────────────────────────
+  // FIREBASE CONFIG — paste your project's web config here.
+  // (Firebase console → Project settings → "Your apps" → Web app → Config)
+  // These keys are PUBLIC and safe to commit. Then set Realtime Database
+  // rules to: { "rules": { ".read": true, ".write": true } }  (test mode)
+  // ──────────────────────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBMt9vVWTGOOoM7QzrtnoDaQAd7WgbKb4",
+    authDomain: "casino-c7ae8.firebaseapp.com",
+    databaseURL: "https://casino-c7ae8-default-rtdb.firebaseio.com",
+    projectId: "casino-c7ae8",
+    storageBucket: "casino-c7ae8.firebasestorage.app",
+    messagingSenderId: "535114103300",
+    appId: "1:535114103300:web:7354a1d367873cafa51351"
+  };
+  const MP_ENABLED = firebaseConfig.databaseURL && firebaseConfig.databaseURL.indexOf('REPLACE_ME') === -1;
+
+  const $ = (id) => document.getElementById(id);
+  const MP = window.MP = { active: false, roomId: null, pid: null, name: null, initial: null,
+                           isHost: false, meta: {}, players: {}, bac: {}, bj: {}, selectedChip: 500 };
+  const HOST = { ready: false, bac: null, bj: null, shoe: [] };
+
+  let db = null;
+  if (MP_ENABLED) {
+    try { firebase.initializeApp(firebaseConfig); db = firebase.database(); }
+    catch (e) { console.error('Firebase init failed', e); }
+  }
+
+  // ── small helpers ──
+  function rid(n) { const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; let s = ''; for (let i = 0; i < n; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+  function roomCode() { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 4; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+  function colorFor(seed) { let h = 0; for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) % 360; return 'hsl(' + h + ',58%,46%)'; }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function escapeHtml(s) { return (s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  function initialOf(name) { const m = (name || '').match(/[A-Za-z0-9]/); return (m ? m[0] : '?').toUpperCase(); }
+  const TS = () => firebase.database.ServerValue.TIMESTAMP;
+
+  // ── chip rendering with player initials ──
+  function denomChips(amount, cap) {
+    const denoms = [100000, 50000, 25000, 10000, 1000, 500, 25];
+    let r = amount; const out = [];
+    for (const d of denoms) { while (r >= d && out.length < cap) { out.push(d); r -= d; } }
+    if (out.length === 0 && amount > 0) out.push(amount);
+    return out;
+  }
+  function initialChip(initial, color) {
+    const c = document.createElement('div');
+    c.className = 'chip mp-initial';
+    c.style.background = color;
+    c.textContent = initial;
+    return c;
+  }
+  // static (non-animated) card builder for synced rendering
+  function mpCard(card, faceDown) {
+    const slot = document.createElement('div'); slot.className = 'card-slot';
+    const inner = document.createElement('div'); inner.className = 'card-inner';
+    if (!faceDown) inner.style.transform = 'rotateY(180deg)';
+    const back = document.createElement('div'); back.className = 'card-back';
+    const pat = document.createElement('div'); pat.className = 'card-back-pattern'; back.appendChild(pat);
+    const front = document.createElement('div'); front.className = 'card-front ' + (isRed(card) ? 'red' : 'black');
+    front.innerHTML = '<div class="card-corner card-corner-tl"><span class="c-rank">' + card.rank + '</span><span class="c-suit">' + card.suit + '</span></div>'
+      + '<div class="card-corner card-corner-br"><span class="c-rank">' + card.rank + '</span><span class="c-suit">' + card.suit + '</span></div>'
+      + '<div class="card-center">' + card.suit + '</div>'
+      + (['J', 'Q', 'K'].includes(card.rank) ? '<div class="card-face-letter">' + card.rank + '</div>' : '');
+    inner.append(back, front); slot.appendChild(inner); return slot;
+  }
+
+  function myChips() { const p = MP.players[MP.pid]; return p ? (p.chips || 0) : 0; }
+  function adjustChips(pid, delta) { return MP.roomRef.child('players/' + pid + '/chips').transaction(c => (c || 0) + delta); }
+
+  function mpUpdateBalanceBar() {
+    const c = myChips();
+    if ($('balance')) $('balance').textContent = '$' + c.toLocaleString();
+    if ($('bjBalance')) $('bjBalance').textContent = '$' + c.toLocaleString();
+    // show high-value chips by wealth
+    const thresholds = [[10000, '10000'], [25000, '25000'], [50000, '50000'], [100000, '100000']];
+    thresholds.forEach(([min, val]) => {
+      document.querySelectorAll('.chip-btn[data-value="' + val + '"]').forEach(btn => { btn.style.display = c >= min ? '' : 'none'; });
+    });
+  }
+
+  // ══════════════════════════════════════
+  // LOBBY
+  // ══════════════════════════════════════
+  function lobbyErr(msg) { $('mpErr').textContent = msg || ''; }
+
+  function setupLobby() {
+    const nameInput = $('mpName'), codeInput = $('mpCode');
+    nameInput.value = localStorage.getItem('mp_name') || '';
+    MP.pid = localStorage.getItem('mp_pid') || rid(16);
+    localStorage.setItem('mp_pid', MP.pid);
+    codeInput.addEventListener('input', () => { codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') $('mpCreateBtn').click(); });
+    codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') $('mpJoinBtn').click(); });
+    $('mpCreateBtn').onclick = () => enterRoom('create');
+    $('mpJoinBtn').onclick = () => enterRoom('join');
+    $('mpLeaveBtn').onclick = leaveRoom;
+    // single-player is the default; the top-right button opens the lobby
+    $('mpOpenBtn').onclick = () => { lobbyErr(''); $('mpOverlay').classList.remove('hidden'); setTimeout(() => $('mpName').focus(), 50); };
+    $('mpCloseBtn').onclick = () => $('mpOverlay').classList.add('hidden');
+    $('mpOverlay').addEventListener('click', e => { if (e.target === $('mpOverlay')) $('mpOverlay').classList.add('hidden'); });
+    const roomEl = document.querySelector('.mp-lb-room');
+    if (roomEl) { roomEl.title = 'Double-click to copy table code'; roomEl.addEventListener('dblclick', copyRoomCode); }
+    if (!MP_ENABLED) { $('mpHint').textContent = 'Multiplayer isn’t configured yet.'; }
+  }
+
+  function copyRoomCode() {
+    if (!MP.roomId) return;
+    const done = () => mpToast('Table code “' + MP.roomId + '” copied');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(MP.roomId).then(done).catch(() => fallbackCopy(MP.roomId, done));
+    } else { fallbackCopy(MP.roomId, done); }
+  }
+  function fallbackCopy(text, cb) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta); if (cb) cb();
+  }
+  let toastTimer = null;
+  function mpToast(msg) {
+    let t = $('mpToast');
+    if (!t) { t = document.createElement('div'); t.id = 'mpToast'; t.className = 'mp-toast'; document.body.appendChild(t); }
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 1700);
+  }
+
+  async function enterRoom(mode) {
+    lobbyErr('');
+    const name = $('mpName').value.trim();
+    if (!name) { lobbyErr('Enter your name first'); return; }
+    if (!MP_ENABLED) { lobbyErr('Multiplayer not configured yet'); return; }
+    MP.name = name.slice(0, 14);
+    MP.initial = initialOf(MP.name);
+    localStorage.setItem('mp_name', MP.name);
+
+    let roomId;
+    if (mode === 'create') {
+      roomId = roomCode();
+    } else {
+      roomId = $('mpCode').value.trim().toUpperCase();
+      if (roomId.length !== 4) { lobbyErr('Enter a 4-letter table code'); return; }
+    }
+    $('mpCreateBtn').disabled = $('mpJoinBtn').disabled = true;
+    try { await joinRoom(roomId, mode === 'create'); }
+    catch (e) { console.error(e); lobbyErr('Connection failed — check Firebase config/rules'); }
+    $('mpCreateBtn').disabled = $('mpJoinBtn').disabled = false;
+  }
+
+  async function joinRoom(roomId, asHost) {
+    const roomRef = db.ref('rooms/' + roomId);
+    const metaSnap = await roomRef.child('meta').once('value');
+    if (!metaSnap.exists() && !asHost) { lobbyErr('Table "' + roomId + '" not found'); return; }
+    if (!metaSnap.exists()) {
+      await roomRef.child('meta').set({ hostId: MP.pid, game: 'baccarat', createdAt: TS() });
+      await roomRef.child('baccarat').set({ phase: 'betting', round: 0, history: '' });
+      await roomRef.child('blackjack').set({ phase: 'betting', round: 0 });
+    }
+    const pRef = roomRef.child('players/' + MP.pid);
+    const ex = await pRef.once('value');
+    const chips = ex.exists() && typeof ex.val().chips === 'number' ? ex.val().chips : 10000;
+    const joinedAt = ex.exists() && ex.val().joinedAt ? ex.val().joinedAt : TS();
+    await pRef.update({ name: MP.name, initial: MP.initial, chips: chips, joinedAt: joinedAt, online: true, lastSeen: TS() });
+    pRef.child('online').onDisconnect().set(false);
+    pRef.child('lastSeen').onDisconnect().set(TS());
+    MP.roomId = roomId; MP.roomRef = roomRef;
+    startRoom();
+  }
+
+  function startRoom() {
+    MP.active = true;
+    $('mpOverlay').classList.add('hidden');
+    $('mpOpenBtn').classList.add('hidden');
+    $('mpLeaderboard').classList.remove('hidden');
+    document.body.classList.add('mp-on');
+    $('mpRoomCode').textContent = MP.roomId;
+    if ($('btnRestart')) $('btnRestart').style.display = 'none';
+    installMpHandlers();
+    subscribe();
+    setInterval(() => { if (MP.roomRef) MP.roomRef.child('players/' + MP.pid).update({ online: true, lastSeen: TS() }); }, 20000);
+  }
+
+  function leaveRoom() {
+    if (MP.roomRef) { try { MP.roomRef.child('players/' + MP.pid + '/online').set(false); } catch (e) {} }
+    location.reload();
+  }
+
+  // ══════════════════════════════════════
+  // SYNC
+  // ══════════════════════════════════════
+  function subscribe() {
+    MP.roomRef.child('meta').on('value', s => { MP.meta = s.val() || {}; onMeta(); });
+    MP.roomRef.child('players').on('value', s => { MP.players = s.val() || {}; ensureHost(); renderLeaderboard(); renderAll(); hostBjOfflineCheck(); });
+    MP.roomRef.child('baccarat').on('value', s => { MP.bac = s.val() || {}; renderBaccarat(); });
+    MP.roomRef.child('blackjack').on('value', s => { MP.bj = s.val() || {}; renderBlackjack(); hostBjOfflineCheck(); });
+    MP.roomRef.child('intents').on('child_added', snap => processIntent(snap.key, snap.val()));
+  }
+
+  function onMeta() {
+    MP.isHost = MP.meta.hostId === MP.pid;
+    if (MP.meta.game && MP.meta.game !== currentGame) applyGameSwitch(MP.meta.game);
+    renderLeaderboard();
+  }
+
+  function ensureHost() {
+    const hostId = MP.meta && MP.meta.hostId;
+    const hp = hostId && MP.players[hostId];
+    const hostOnline = hp && hp.online;
+    if (!hostOnline) {
+      const online = Object.entries(MP.players).filter(([id, p]) => p.online);
+      online.sort((a, b) => (a[1].joinedAt || 0) - (b[1].joinedAt || 0));
+      if (online.length && online[0][0] === MP.pid) {
+        HOST.ready = false; // re-init authoritative state from current snapshot
+        MP.roomRef.child('meta/hostId').set(MP.pid);
+      }
+    }
+    MP.isHost = MP.meta.hostId === MP.pid;
+  }
+
+  function hostInit() {
+    if (HOST.ready) return;
+    HOST.bac = MP.bac && Object.keys(MP.bac).length ? JSON.parse(JSON.stringify(MP.bac)) : { phase: 'betting', round: 0, history: '' };
+    HOST.bj = MP.bj && Object.keys(MP.bj).length ? JSON.parse(JSON.stringify(MP.bj)) : { phase: 'betting', round: 0 };
+    HOST.shoe = createShoe();
+    HOST.ready = true;
+  }
+  function mpDraw() { if (HOST.shoe.length < 20) HOST.shoe = createShoe(); return HOST.shoe.pop(); }
+  function pushBac() { MP.roomRef.child('baccarat').set(HOST.bac); }
+  function pushBj() { MP.roomRef.child('blackjack').set(HOST.bj); }
+
+  // intents
+  function sendIntent(type, payload) { MP.roomRef.child('intents').push({ type: type, payload: payload || null, pid: MP.pid, ts: TS() }); }
+  function processIntent(key, intent) {
+    if (!MP.isHost) return;
+    MP.roomRef.child('intents/' + key).remove();
+    hostInit();
+    if (!intent) return;
+    switch (intent.type) {
+      case 'bacDeal': hostBacDeal(); break;
+      case 'bacNew': hostBacNew(); break;
+      case 'bjDeal': hostBjDeal(); break;
+      case 'bjNew': hostBjNew(); break;
+      case 'bjAct': if (intent.payload) hostBjAct(intent.payload.action, intent.pid); break;
+    }
+  }
+
+  function applyGameSwitch(game) {
+    currentGame = game;
+    document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.game-container').forEach(c => c.classList.remove('active'));
+    if (game === 'baccarat') { document.querySelectorAll('.game-tab')[0].classList.add('active'); $('baccaratGame').classList.add('active'); bacRenderKey = ''; renderBaccarat(); }
+    else { document.querySelectorAll('.game-tab')[1].classList.add('active'); $('blackjackGame').classList.add('active'); bjView = { phase: '', boxCount: 0 }; renderBlackjack(); }
+  }
+  function renderAll() { if (currentGame === 'baccarat') renderBaccarat(); else renderBlackjack(); }
+
+  // ══════════════════════════════════════
+  // LEADERBOARD
+  // ══════════════════════════════════════
+  function renderLeaderboard() {
+    if (!MP.active) return;
+    const list = $('mpPlayerList'); if (!list) return;
+    let turnPid = null;
+    if (currentGame === 'blackjack' && MP.bj && MP.bj.phase === 'playing' && MP.bj.turn && MP.bj.order) turnPid = MP.bj.order[MP.bj.turn.seat];
+    const players = Object.entries(MP.players).sort((a, b) => (b[1].chips || 0) - (a[1].chips || 0));
+    list.innerHTML = '';
+    players.forEach(([pid, p]) => {
+      const row = document.createElement('div');
+      row.className = 'mp-lb-player' + (pid === MP.pid ? ' self' : '') + (pid === turnPid ? ' turn' : '') + (p.online ? '' : ' offline');
+      const av = document.createElement('div'); av.className = 'mp-avatar'; av.style.background = colorFor(pid); av.textContent = p.initial || initialOf(p.name);
+      const info = document.createElement('div'); info.className = 'mp-lb-info';
+      const nm = document.createElement('div'); nm.className = 'mp-lb-name';
+      nm.innerHTML = escapeHtml(p.name) + (pid === MP.meta.hostId ? ' <span class="host-tag">HOST</span>' : '');
+      const ch = document.createElement('div'); ch.className = 'mp-lb-chips'; ch.textContent = '$' + (p.chips || 0).toLocaleString();
+      info.append(nm, ch); row.append(av, info); list.appendChild(row);
+    });
+  }
+
+  // ══════════════════════════════════════
+  // BACCARAT (multiplayer)
+  // ══════════════════════════════════════
+  let bacRenderKey = '';
+  function hasAnyBacBet() {
+    const bets = MP.bac && MP.bac.bets; if (!bets) return false;
+    return Object.values(bets).some(b => (b.player || 0) + (b.banker || 0) + (b.tie || 0) > 0);
+  }
+  function myBacTotal() { const b = (MP.bac.bets && MP.bac.bets[MP.pid]) || {}; return (b.player || 0) + (b.banker || 0) + (b.tie || 0); }
+
+  function mpBacPlaceBet(zone) {
+    if (!MP.bac || MP.bac.phase !== 'betting') return;
+    const v = MP.selectedChip === 'all' ? myChips() : MP.selectedChip;
+    if (v <= 0 || myChips() < v) return;
+    adjustChips(MP.pid, -v);
+    MP.roomRef.child('baccarat/bets/' + MP.pid + '/' + zone).transaction(c => (c || 0) + v);
+  }
+  function mpBacClear() {
+    if (!MP.bac || MP.bac.phase !== 'betting') return;
+    const t = myBacTotal(); if (t > 0) adjustChips(MP.pid, t);
+    MP.roomRef.child('baccarat/bets/' + MP.pid).remove();
+  }
+  function mpBacDeal() { if (MP.bac && MP.bac.phase === 'betting' && hasAnyBacBet()) sendIntent('bacDeal'); }
+
+  function renderBacZone(zone) {
+    const el = $('chips' + cap(zone)), betEl = $('bet' + cap(zone));
+    if (!el) return;
+    el.innerHTML = ''; betEl.textContent = '';
+    const bets = (MP.bac && MP.bac.bets) || {};
+    let total = 0;
+    Object.entries(bets).forEach(([pid, b]) => {
+      const amt = b[zone] || 0; if (amt <= 0) return;
+      total += amt;
+      const pl = MP.players[pid]; if (!pl) return;
+      denomChips(amt, 3).forEach(() => el.appendChild(initialChip(pl.initial || initialOf(pl.name), colorFor(pid))));
+    });
+    if (total > 0) betEl.textContent = '$' + total.toLocaleString();
+  }
+
+  function renderRoad(str) { history = (str || '').split(''); renderHistory(); }
+
+  function renderBaccarat() {
+    if (!MP.active) return;
+    mpUpdateBalanceBar();
+    const bac = MP.bac || {};
+    renderRoad(bac.history || '');
+    if (currentGame === 'baccarat') {
+      ['player', 'banker', 'tie'].forEach(renderBacZone);
+      $('totalBet').textContent = '$' + myBacTotal().toLocaleString();
+    }
+    const key = (bac.round || 0) + '|' + (bac.phase || 'betting');
+    if (key !== bacRenderKey) {
+      bacRenderKey = key;
+      if (bac.phase === 'betting') bacEnterBetting();
+      else if (bac.phase === 'revealing') bacEnterRevealing(bac);
+      else if (bac.phase === 'done') bacEnterDone(bac);
+    } else if (bac.phase === 'revealing') {
+      bacApplyReveal(bac.reveal || 0);   // a flip happened (possibly by another player)
+    }
+    if (MP.isHost) hostBacResolveWatch();
+    updateBacControls();
+  }
+
+  function bacEnterBetting() {
+    bacSlotsReady = false; bacSeq = []; bacAutoIdx = -1;
+    $('playerCards').innerHTML = ''; $('bankerCards').innerHTML = '';
+    $('playerScore').classList.remove('visible'); $('bankerScore').classList.remove('visible');
+    $('resultBanner').classList.remove('show');
+    $('flipHint').style.display = 'none';
+    $('playerLabel').classList.remove('your-side'); $('bankerLabel').classList.remove('your-side');
+    document.querySelectorAll('.bet-zone').forEach(z => z.classList.remove('disabled'));
+    if (window.setMessage) setMessage('Place your bets', '');
+  }
+
+  // ── Interactive synced reveal ──
+  // Real baccarat: 2 cards each first (revealed P0,B0,P1,B1), then 3rd cards per the
+  // drawing tableau. Each SIDE is squeezed by its biggest bettor; the other side
+  // reveals on its own (the auto side leads by one card). Reveal index is synced via DB.
+  let bacSeq = [];          // ordered [{side:'p'|'b', idx}]
+  let bacSlotsReady = false;
+
+  function bacSeqSides(bac) {
+    const P = (bac.playerCards || []).length, B = (bac.bankerCards || []).length;
+    const s = [{ side: 'p', idx: 0 }, { side: 'b', idx: 0 }, { side: 'p', idx: 1 }, { side: 'b', idx: 1 }];
+    if (P >= 3) s.push({ side: 'p', idx: 2 });   // player draws third first
+    if (B >= 3) s.push({ side: 'b', idx: 2 });   // then banker
+    return s;
+  }
+
+  async function bacEnterRevealing(bac) {
+    bacSlotsReady = false; bacSeq = []; bacAutoIdx = -1;
+    const pc = $('playerCards'), bc = $('bankerCards');
+    pc.innerHTML = ''; bc.innerHTML = '';
+    $('playerScore').classList.remove('visible'); $('bankerScore').classList.remove('visible');
+    $('resultBanner').classList.remove('show');
+    document.querySelectorAll('.bet-zone').forEach(z => z.classList.add('disabled'));
+    if (window.setMessage) setMessage('Dealing…', '');
+    const P = bac.playerCards || [], B = bac.bankerCards || [];
+    // deal only the first two of each side, face down, interleaved P,B,P,B
+    const firstFour = [['p', 0], ['b', 0], ['p', 1], ['b', 1]];
+    for (const [side, idx] of firstFour) {
+      const card = side === 'p' ? P[idx] : B[idx];
+      (side === 'p' ? pc : bc).appendChild(createCardSlot(card));
+      await sleep(170);
+    }
+    bacSeq = bacSeqSides(bac);
+    bacSlotsReady = true;
+    await sleep(150);
+    if (window.setMessage) setMessage('', '');
+    bacApplyReveal((MP.bac && MP.bac.reveal) || 0);
+  }
+
+  function bacSlotFor(side, idx, card) {
+    const cont = side === 'p' ? $('playerCards') : $('bankerCards');
+    let slot = cont.children[idx];
+    if (!slot && card) { slot = createCardSlot(card); cont.appendChild(slot); }  // 3rd card slides in on demand
+    return slot;
+  }
+
+  function bacAdvance(n) { MP.roomRef.child('baccarat/reveal').transaction(c => Math.max(c || 0, n + 1)); }
+  function isAnyFlipper() { const bac = MP.bac || {}; return bac.flipPlayer === MP.pid || bac.flipBanker === MP.pid; }
+  let bacAutoIdx = -1;
+  function bacDriveAuto(n) {
+    if (!(MP.isHost || isAnyFlipper())) return;   // an active participant advances the auto side
+    if (bacAutoIdx === n) return; bacAutoIdx = n;
+    setTimeout(() => { if (MP.bac && MP.bac.phase === 'revealing' && (MP.bac.reveal || 0) === n) bacAdvance(n); }, 750);
+  }
+
+  function bacApplyReveal(n) {
+    if (!bacSlotsReady) return;
+    const bac = MP.bac || {};
+    const seq = bacSeqSides(bac);   // always fresh — never stale
+    const P = bac.playerCards || [], B = bac.bankerCards || [];
+    document.querySelectorAll('.card-slot.next-reveal').forEach(s => s.classList.remove('next-reveal'));
+    for (let i = 0; i < seq.length && i < n; i++) {
+      const e = seq[i];
+      const slot = bacSlotFor(e.side, e.idx, e.side === 'p' ? P[e.idx] : B[e.idx]);
+      if (slot && !slot._flipped) flipCardAnimated(slot, 'animate');
+    }
+    if (n >= seq.length) { $('flipHint').style.display = 'none'; return; }   // host resolves
+    const e = seq[n];
+    const card = e.side === 'p' ? P[e.idx] : B[e.idx];
+    const slot = bacSlotFor(e.side, e.idx, card);
+    // self-heal: a card already turned face-up but the counter lagged → just advance
+    if (slot && slot._flipped) { bacAdvance(n); return; }
+    const flipper = e.side === 'p' ? bac.flipPlayer : bac.flipBanker;
+    const fp = flipper && MP.players[flipper];
+    const manual = fp && fp.online;
+    const sideName = e.side === 'p' ? 'Player' : 'Banker';
+    if (manual && flipper === MP.pid && slot) {
+      bacEnableFlip(slot, n);
+      $('flipHint').style.display = 'block';
+      $('flipHint').textContent = 'Flip the ' + sideName + ' card';
+    } else if (manual) {
+      $('flipHint').style.display = 'block';
+      $('flipHint').textContent = escapeHtml(fp.name) + ' is flipping ' + sideName + '…';
+    } else {
+      $('flipHint').style.display = 'block';
+      $('flipHint').textContent = 'Revealing ' + sideName + '…';
+      bacDriveAuto(n);   // no online squeezer for this side → active client advances it
+    }
+  }
+
+  function bacEnableFlip(slot, index) {
+    slot.classList.add('next-reveal');
+    slot.style.cursor = 'pointer';
+    if (slot._flipBound) return;
+    slot._flipBound = true;
+    const inner = slot.querySelector('.card-inner');
+    let drag = null;
+    slot.addEventListener('pointerdown', e => {
+      if (slot._flipped) return;
+      e.preventDefault();
+      try { slot.setPointerCapture(e.pointerId); } catch (err) {}
+      drag = { x: e.clientX, y: e.clientY, moved: 0 };
+    });
+    slot.addEventListener('pointermove', e => {
+      if (!drag || slot._flipped) return;
+      const d = Math.max(Math.abs(e.clientX - drag.x), Math.abs(e.clientY - drag.y));
+      drag.moved = d;
+      inner.style.transition = 'none';
+      inner.style.transform = 'rotateY(' + Math.min(180, (d / 120) * 180) + 'deg)';
+    });
+    slot.addEventListener('pointerup', e => {
+      if (!drag || slot._flipped) return;
+      const commit = drag.moved < 6 || drag.moved > 60;   // tap or sufficient drag
+      inner.style.transition = '';
+      if (commit) bacCommitFlip(slot, index);
+      else inner.style.transform = 'rotateY(0deg)';
+      drag = null;
+    });
+    slot.addEventListener('pointercancel', () => {
+      if (drag && !slot._flipped) { inner.style.transition = ''; inner.style.transform = 'rotateY(0deg)'; }
+      drag = null;
+    });
+  }
+
+  function bacCommitFlip(slot, index) {
+    slot._flipped = true;
+    slot.classList.remove('next-reveal');
+    const inner = slot.querySelector('.card-inner');
+    inner.classList.add('animate'); inner.style.transition = '';
+    inner.style.transform = 'rotateY(180deg)';
+    MP.roomRef.child('baccarat/reveal').transaction(c => Math.max(c || 0, index + 1));
+  }
+
+  function bacEnterDone(bac) {
+    $('flipHint').style.display = 'none';
+    const pc = $('playerCards'), bc = $('bankerCards');
+    // ensure every card (incl. any third) is present and face-up
+    if (pc.children.length !== (bac.playerCards || []).length) { pc.innerHTML = ''; (bac.playerCards || []).forEach(c => pc.appendChild(mpCard(c, false))); }
+    if (bc.children.length !== (bac.bankerCards || []).length) { bc.innerHTML = ''; (bac.bankerCards || []).forEach(c => bc.appendChild(mpCard(c, false))); }
+    pc.querySelectorAll('.card-slot').forEach(s => { if (!s._flipped) { const inner = s.querySelector('.card-inner'); if (inner) inner.style.transform = 'rotateY(180deg)'; } });
+    bc.querySelectorAll('.card-slot').forEach(s => { if (!s._flipped) { const inner = s.querySelector('.card-inner'); if (inner) inner.style.transform = 'rotateY(180deg)'; } });
+    const r = bac.result || {};
+    $('playerScore').textContent = r.pTotal; $('bankerScore').textContent = r.bTotal;
+    $('playerScore').classList.add('visible'); $('bankerScore').classList.add('visible');
+    const text = r.winner === 'player' ? 'Player Wins' : r.winner === 'banker' ? 'Banker Wins' : 'Tie';
+    const sub = r.winner === 'tie' ? ('Both ' + r.pTotal) : (Math.max(r.pTotal, r.bTotal) + ' vs ' + Math.min(r.pTotal, r.bTotal));
+    $('resultText').textContent = text; $('resultSub').textContent = sub;
+    $('resultBanner').classList.add('show');
+    document.querySelectorAll('.bet-zone').forEach(z => z.classList.add('disabled'));
+    // my net message
+    const my = (bac.bets && bac.bets[MP.pid]) || {};
+    const betTot = (my.player || 0) + (my.banker || 0) + (my.tie || 0);
+    let win = 0;
+    if (r.winner === 'player') win = (my.player || 0) * 2;
+    else if (r.winner === 'banker') win = Math.floor((my.banker || 0) * 1.95);
+    else win = (my.player || 0) + (my.banker || 0) + (my.tie || 0) * 9;
+    const net = win - betTot;
+    if (betTot === 0) setMessage('', '');
+    else if (net > 0) setMessage('You win $' + net.toLocaleString() + '!', 'win');
+    else if (net === 0) setMessage('Push', '');
+    else setMessage('You lose $' + Math.abs(net).toLocaleString(), 'lose');
+  }
+
+  function updateBacControls() {
+    const bac = MP.bac || {};
+    const clr = $('mpBacClear');
+    if (bac.phase === 'betting') {
+      $('btnDeal').style.display = ''; $('btnDeal').disabled = !hasAnyBacBet();
+      $('btnNew').style.display = 'none';
+      $('chipTray').style.opacity = '1'; $('chipTray').style.pointerEvents = '';
+      if (clr) clr.style.display = myBacTotal() > 0 ? '' : 'none';
+    } else {
+      $('btnDeal').style.display = 'none';
+      $('btnNew').style.display = bac.phase === 'done' ? '' : 'none';
+      $('chipTray').style.opacity = '0.3'; $('chipTray').style.pointerEvents = 'none';
+      if (clr) clr.style.display = 'none';
+    }
+  }
+
+  function hostBacDeal() {
+    const cur = MP.bac || {};
+    if (cur.phase !== 'betting') return;
+    HOST.bac.bets = cur.bets || {};
+    HOST.bac.history = cur.history || HOST.bac.history || '';
+    HOST.bac.round = (cur.round != null ? cur.round : HOST.bac.round) || 0;
+    const anyBet = Object.values(HOST.bac.bets).some(b => (b.player || 0) + (b.banker || 0) + (b.tie || 0) > 0);
+    if (!anyBet) return;
+    const p = [mpDraw(), mpDraw()], b = [mpDraw(), mpDraw()];
+    const pInit = handTotal(p), bInit = handTotal(b);
+    const natural = pInit >= 8 || bInit >= 8;
+    let pThird = null, playerDrew = false;
+    if (!natural) {
+      if (pInit <= 5) { pThird = mpDraw(); p.push(pThird); playerDrew = true; }
+      if (bankerDraws(bInit, pThird, playerDrew)) b.push(mpDraw());
+    }
+    const pTotal = handTotal(p), bTotal = handTotal(b);
+    const winner = pTotal > bTotal ? 'player' : (bTotal > pTotal ? 'banker' : 'tie');
+    HOST.bac.phase = 'revealing'; HOST.bac.playerCards = p; HOST.bac.bankerCards = b;
+    HOST.bac.result = { winner: winner, pTotal: pTotal, bTotal: bTotal };
+    HOST.bac.reveal = 0;
+    HOST.bac.flipPlayer = bestBettor(HOST.bac.bets, 'player');   // squeezes Player side
+    HOST.bac.flipBanker = bestBettor(HOST.bac.bets, 'banker');   // squeezes Banker side
+    bacAutoIdx = -1;
+    if (bacResolveTimer) { clearTimeout(bacResolveTimer); bacResolveTimer = null; }
+    pushBac();
+    setTimeout(hostBacResolve, 60000);   // backstop: resolve even if a flip stalls
+  }
+  function bestBettor(bets, side) {
+    let best = null, bestAmt = 0;
+    Object.entries(bets || {}).forEach(([pid, b]) => {
+      const a = (b && b[side]) || 0;
+      if (a <= 0) return;
+      const earlier = best && MP.players[pid] && MP.players[best] && (MP.players[pid].joinedAt || 0) < (MP.players[best].joinedAt || 0);
+      if (a > bestAmt || (a === bestAmt && earlier)) { best = pid; bestAmt = a; }
+    });
+    return best;
+  }
+  // Host watches the synced reveal count and resolves once every card is flipped.
+  // Self-healing (timer handle, not a sticky flag) so it can never deadlock.
+  let bacResolveTimer = null;
+  function hostBacResolveWatch() {
+    const bac = MP.bac || {};
+    if (bac.phase !== 'revealing') { if (bacResolveTimer) { clearTimeout(bacResolveTimer); bacResolveTimer = null; } return; }
+    const total = (bac.playerCards || []).length + (bac.bankerCards || []).length;
+    if (total > 0 && (bac.reveal || 0) >= total && bacResolveTimer === null) {
+      bacResolveTimer = setTimeout(() => { bacResolveTimer = null; hostBacResolve(); }, 600);
+    }
+  }
+  function bankerDraws(bTotal, pThird, playerDrew) {
+    if (bTotal >= 7) return false;
+    if (!playerDrew) return bTotal <= 5;
+    const v = cardValue(pThird);
+    switch (bTotal) {
+      case 0: case 1: case 2: return true;
+      case 3: return v !== 8;
+      case 4: return v >= 2 && v <= 7;
+      case 5: return v >= 4 && v <= 7;
+      case 6: return v >= 6 && v <= 7;
+      default: return false;
+    }
+  }
+  function hostBacResolve() {
+    const bac = HOST.bac;
+    if (!bac || bac.phase !== 'revealing') return;
+    const winner = bac.result.winner;
+    const bets = bac.bets || {};
+    // Pay PROFIT only — the staked chips stay on the felt (a winning/pushed bet rides).
+    Object.entries(bets).forEach(([pid, b]) => {
+      let profit = 0;
+      if (winner === 'player') profit = (b.player || 0) * 1;            // 1:1
+      else if (winner === 'banker') profit = Math.floor((b.banker || 0) * 0.95); // 0.95:1
+      else profit = (b.tie || 0) * 8;                                  // tie 8:1; P/B push (no profit)
+      if (profit > 0) adjustChips(pid, profit);
+    });
+    bac.history = (bac.history || '') + (winner === 'player' ? 'p' : winner === 'banker' ? 'b' : 't');
+    bac.phase = 'done';
+    pushBac();
+  }
+  // A bet carries to the next round if it won or pushed; a losing bet is removed.
+  function bacCarriedBets(prevBets, winner) {
+    const carried = {};
+    Object.entries(prevBets || {}).forEach(([pid, b]) => {
+      const nb = {};
+      if ((winner === 'player' || winner === 'tie') && (b.player || 0) > 0) nb.player = b.player;
+      if ((winner === 'banker' || winner === 'tie') && (b.banker || 0) > 0) nb.banker = b.banker;
+      if (winner === 'tie' && (b.tie || 0) > 0) nb.tie = b.tie;
+      if (Object.keys(nb).length) carried[pid] = nb;
+    });
+    return carried;
+  }
+  function hostBacNew() {
+    if (!HOST.bac || HOST.bac.phase !== 'done') return;
+    const winner = HOST.bac.result ? HOST.bac.result.winner : null;
+    const carried = bacCarriedBets(HOST.bac.bets, winner);   // winning/pushed stakes stay on the board
+    HOST.bac = { phase: 'betting', round: (HOST.bac.round || 0) + 1, history: HOST.bac.history || '', bets: carried };
+    pushBac();
+  }
+
+  // ══════════════════════════════════════
+  // BLACKJACK (multiplayer)
+  // ══════════════════════════════════════
+  let bjView = { phase: '', boxCount: 0 };
+  let bjAnim = false;
+  function isMyBjTurn() { const bj = MP.bj; return bj && bj.phase === 'playing' && bj.turn && bj.order && bj.order[bj.turn.seat] === MP.pid; }
+  function mySeatTotalBet() { const s = MP.bj && MP.bj.seats && MP.bj.seats[MP.pid]; return s ? s.hands.reduce((a, h) => a + h.bet, 0) : 0; }
+
+  function mpBjPlaceBet() {
+    const bj = MP.bj || {}; if (bj.phase !== 'betting') return;
+    const v = MP.selectedChip === 'all' ? myChips() : MP.selectedChip;
+    if (v <= 0 || myChips() < v) return;
+    adjustChips(MP.pid, -v);
+    MP.roomRef.child('blackjack/bets/' + MP.pid).transaction(c => (c || 0) + v);
+  }
+  function mpBjClear() {
+    const bj = MP.bj || {}; if (bj.phase !== 'betting') return;
+    const cur = (bj.bets && bj.bets[MP.pid]) || 0;
+    if (cur > 0) adjustChips(MP.pid, cur);
+    MP.roomRef.child('blackjack/bets/' + MP.pid).remove();
+  }
+  function mpBjAction(a) { if (isMyBjTurn()) sendIntent('bjAct', { action: a }); }
+
+  function resultLabel(h) { return { bust: 'BUST', win: 'WIN', lose: 'LOSE', push: 'PUSH', blackjack: 'BLACKJACK!' }[h.result] || ''; }
+  function resultClass(r) { return { bust: 'lose', win: 'win', lose: 'lose', push: 'push', blackjack: 'blackjack' }[r] || ''; }
+
+  function renderBlackjack() {
+    if (!MP.active) return;
+    mpUpdateBalanceBar();
+    if (currentGame !== 'blackjack') { renderLeaderboard(); return; }
+    const bj = MP.bj || {};
+    $('bjTotalBet').textContent = '$' + (bj.phase === 'betting' ? (((bj.bets && bj.bets[MP.pid]) || 0)) : mySeatTotalBet()).toLocaleString();
+    if (bjAnim) { renderLeaderboard(); return; }   // don't interrupt the deal animation
+    bjReconcile(bj);
+    renderLeaderboard();
+  }
+
+  function handList(bj) {
+    const out = [];
+    (bj.order || []).forEach(pid => { const s = bj.seats[pid]; if (s) s.hands.forEach((h, hi) => out.push({ pid: pid, hi: hi, h: h })); });
+    return out;
+  }
+
+  function bjReconcile(bj) {
+    const phase = bj.phase || 'betting';
+    if (phase === 'betting' || !bj.order) {
+      bjRenderBetting(bj);
+      const dc = $('bjDealerCards'); dc.innerHTML = ''; dc._hole = false;
+      bjView = { phase: 'betting', boxCount: 0 };
+      bjUpdateControls(bj); bjUpdateMessage(bj);
+      return;
+    }
+    const hands = handList(bj);
+    if (bjView.phase === 'betting') { bjAnimateDeal(bj, hands); return; }   // betting → playing: animate the deal
+    if (hands.length !== bjView.boxCount || bjView.phase === '') bjBuildBoxes(bj, hands);
+    else bjAppendNewCards(bj, hands);
+    bjSyncDealer(bj);
+    bjUpdateBoxStates(bj, hands);
+    bjView = { phase: phase, boxCount: hands.length };
+    bjUpdateControls(bj); bjUpdateMessage(bj);
+  }
+
+  function bjRenderBetting(bj) {
+    const row = $('bjHandsRow'); row.innerHTML = '';
+    const online = Object.entries(MP.players).filter(([id, p]) => p.online).sort((a, b) => (a[1].joinedAt || 0) - (b[1].joinedAt || 0));
+    online.forEach(([pid, pl]) => {
+      const bet = (bj.bets && bj.bets[pid]) || 0;
+      const box = document.createElement('div');
+      box.className = 'bj-hand-box' + (pid === MP.pid ? ' active-hand' : (bet === 0 ? ' no-bet' : ''));
+      box.dataset.bjseat = pid;
+      box.innerHTML = '<div class="bj-hand-label">' + escapeHtml(pl.name) + (pid === MP.pid ? ' (you)' : '') + '</div>'
+        + '<div class="bj-hand-cards"></div><div class="chip-stack"></div>'
+        + '<div class="bj-hand-bet">' + (bet > 0 ? '$' + bet.toLocaleString() : 'Place bet') + '</div>';
+      const chipsEl = box.querySelector('.chip-stack');
+      denomChips(bet, 4).forEach(() => chipsEl.appendChild(initialChip(pl.initial || initialOf(pl.name), colorFor(pid))));
+      row.appendChild(box);
+    });
+  }
+
+  function bjMakeBox(bj, pid, hi, h) {
+    const pl = MP.players[pid] || { name: '', initial: bj.seats[pid].initial };
+    const box = document.createElement('div'); box.className = 'bj-hand-box'; box.id = 'mpH_' + pid + '_' + hi;
+    box.innerHTML = '<div class="bj-hand-label">' + escapeHtml(pl.name) + (bj.seats[pid].hands.length > 1 ? ' ' + String.fromCharCode(65 + hi) : '') + ' <span class="bj-total"></span></div>'
+      + '<div class="bj-hand-cards"></div><div class="chip-stack"></div>'
+      + '<div class="bj-hand-bet">$' + h.bet.toLocaleString() + '</div>'
+      + '<div class="bj-hand-result"></div>';
+    const chipsEl = box.querySelector('.chip-stack');
+    denomChips(h.bet, 4).forEach(() => chipsEl.appendChild(initialChip((pl.initial || initialOf(pl.name)), colorFor(pid))));
+    box._cardCount = 0;
+    return box;
+  }
+
+  function bjBuildBoxes(bj, hands) {
+    const row = $('bjHandsRow'); row.innerHTML = '';
+    hands.forEach(({ pid, hi, h }) => {
+      const box = bjMakeBox(bj, pid, hi, h);
+      const cardsEl = box.querySelector('.bj-hand-cards');
+      h.cards.forEach(c => cardsEl.appendChild(mpCard(c, false)));
+      box._cardCount = h.cards.length;
+      row.appendChild(box);
+    });
+  }
+
+  function bjAppendNewCards(bj, hands) {
+    hands.forEach(({ pid, hi, h }) => {
+      const box = $('mpH_' + pid + '_' + hi); if (!box) return;
+      const cardsEl = box.querySelector('.bj-hand-cards');
+      const shown = cardsEl.children.length;
+      for (let i = shown; i < h.cards.length; i++) cardsEl.appendChild(bjCreateCard(h.cards[i], false));
+      box._cardCount = h.cards.length;
+      const betEl = box.querySelector('.bj-hand-bet'); if (betEl) betEl.textContent = '$' + h.bet.toLocaleString();
+      const pl = MP.players[pid] || {}; const chipsEl = box.querySelector('.chip-stack');
+      if (chipsEl.children.length !== denomChips(h.bet, 4).length) {
+        chipsEl.innerHTML = ''; denomChips(h.bet, 4).forEach(() => chipsEl.appendChild(initialChip((pl.initial || initialOf(pl.name)), colorFor(pid))));
+      }
+    });
+  }
+
+  function bjSyncDealer(bj) {
+    const dc = $('bjDealerCards');
+    const cards = (bj.dealer && bj.dealer.cards) || [];
+    const hole = !!(bj.dealer && bj.dealer.hole);
+    const shown = dc.children.length;
+    if (shown === 0) { cards.forEach((c, i) => dc.appendChild(mpCard(c, hole && i === 1))); dc._hole = hole; }
+    else {
+      for (let i = shown; i < cards.length; i++) dc.appendChild(bjCreateCard(cards[i], false));
+      if (dc._hole && !hole) {
+        const hs = dc.children[1];
+        if (hs) { const inner = hs.querySelector('.card-inner'); if (inner) { inner.classList.add('animate'); inner.style.transform = 'rotateY(180deg)'; } }
+      }
+      dc._hole = hole;
+    }
+    // total badge — while the hole is hidden show only the up-card value
+    const tEl = $('bjDealerTotal');
+    if (tEl) {
+      const visible = hole ? cards.slice(0, 1) : cards;
+      const t = bjHandTotal(visible);
+      tEl.textContent = cards.length ? (t + (hole ? '+' : '')) : '';
+      tEl.className = 'bj-total' + (!hole && t > 21 ? ' bust' : '');
+    }
+  }
+
+  function bjUpdateBoxStates(bj, hands) {
+    hands.forEach(({ pid, hi, h }) => {
+      const box = $('mpH_' + pid + '_' + hi); if (!box) return;
+      box.classList.remove('active-hand', 'lost', 'won', 'push-result');
+      if (bj.phase === 'playing' && bj.turn && bj.order[bj.turn.seat] === pid && bj.turn.hand === hi) box.classList.add('active-hand');
+      if (h.result === 'bust' || h.result === 'lose') box.classList.add('lost');
+      else if (h.result === 'win' || h.result === 'blackjack') box.classList.add('won');
+      else if (h.result === 'push') box.classList.add('push-result');
+      const resEl = box.querySelector('.bj-hand-result');
+      if (resEl) { resEl.textContent = resultLabel(h); resEl.className = 'bj-hand-result ' + resultClass(h.result); }
+      const tEl = box.querySelector('.bj-total');
+      if (tEl) { const t = bjHandTotal(h.cards); tEl.textContent = t; tEl.className = 'bj-total' + (t > 21 ? ' bust' : ''); }
+    });
+  }
+
+  async function bjAnimateDeal(bj, hands) {
+    bjAnim = true;
+    const row = $('bjHandsRow'); row.innerHTML = '';
+    const dc = $('bjDealerCards'); dc.innerHTML = '';
+    const boxes = hands.map(({ pid, hi, h }) => { const box = bjMakeBox(bj, pid, hi, h); row.appendChild(box); return box; });
+    const dealer = bj.dealer || { cards: [] };
+    for (let r = 0; r < 2; r++) {
+      for (let i = 0; i < hands.length; i++) {
+        const h = hands[i].h;
+        if (h.cards[r]) { boxes[i].querySelector('.bj-hand-cards').appendChild(bjCreateCard(h.cards[r], false)); boxes[i]._cardCount = r + 1; await sleep(160); }
+      }
+      if (dealer.cards[r]) {
+        const faceDown = (r === 1 && dealer.hole);
+        dc.appendChild(faceDown ? mpCard(dealer.cards[r], true) : bjCreateCard(dealer.cards[r], false));
+        await sleep(160);
+      }
+    }
+    dc._hole = !!dealer.hole;
+    bjView = { phase: 'playing', boxCount: hands.length };
+    bjAnim = false;
+    bjReconcile(MP.bj || bj);   // apply latest turn/results that may have arrived
+  }
+
+  function bjUpdateControls(bj) {
+    ['bjBtnHit', 'bjBtnStand', 'bjBtnDouble', 'bjBtnSplit', 'bjBtnDeal', 'bjBtnNewRound'].forEach(id => { if ($(id)) $(id).style.display = 'none'; });
+    if ($('mpBjClear')) $('mpBjClear').style.display = 'none';
+    if (bj.phase === 'betting' || !bj.phase) {
+      const total = Object.values(bj.bets || {}).reduce((a, b) => a + b, 0);
+      $('bjBtnDeal').style.display = ''; $('bjBtnDeal').disabled = total <= 0;
+      if ($('mpBjClear')) $('mpBjClear').style.display = ((bj.bets && bj.bets[MP.pid]) || 0) > 0 ? '' : 'none';
+      $('bjChipTray').style.opacity = '1'; $('bjChipTray').style.pointerEvents = '';
+    } else if (bj.phase === 'playing') {
+      $('bjChipTray').style.opacity = '0.3'; $('bjChipTray').style.pointerEvents = 'none';
+      if (isMyBjTurn() && bj.seats[MP.pid]) {
+        const h = bj.seats[MP.pid].hands[bj.turn.hand];
+        $('bjBtnHit').style.display = ''; $('bjBtnStand').style.display = '';
+        $('bjBtnDouble').style.display = (h.cards.length === 2 && myChips() >= h.bet) ? '' : 'none';
+        const canSplit = h.cards.length === 2 && bjCardValue(h.cards[0]) === bjCardValue(h.cards[1]) && myChips() >= h.bet && bj.seats[MP.pid].hands.length < 4;
+        $('bjBtnSplit').style.display = canSplit ? '' : 'none';
+      }
+    } else {
+      $('bjChipTray').style.opacity = '0.3'; $('bjChipTray').style.pointerEvents = 'none';
+      if (bj.phase === 'done') $('bjBtnNewRound').style.display = '';
+    }
+  }
+
+  function bjUpdateMessage(bj) {
+    const msg = window.bjSetMessage || function () {};
+    if (bj.phase === 'betting' || !bj.phase) { msg('', ''); }
+    else if (bj.phase === 'playing' && bj.turn) {
+      const pid = bj.order[bj.turn.seat]; const pl = MP.players[pid];
+      msg(pid === MP.pid ? 'Your turn' : 'Waiting for ' + (pl ? pl.name : 'player') + '…', '');
+    } else if (bj.phase === 'dealer') { msg('Dealer plays…', ''); }
+    else if (bj.phase === 'done') {
+      const seat = bj.seats && bj.seats[MP.pid];
+      if (!seat) { msg('Round over', ''); return; }
+      let net = 0;
+      seat.hands.forEach(h => {
+        if (h.result === 'win') net += h.bet;
+        else if (h.result === 'blackjack') net += Math.floor(h.bet * 1.5);
+        else if (h.result === 'push') net += 0;
+        else net -= h.bet;
+      });
+      if (net > 0) msg('You win $' + net.toLocaleString() + '!', 'win');
+      else if (net === 0) msg('Push', '');
+      else msg('You lose $' + Math.abs(net).toLocaleString(), 'lose');
+    }
+  }
+
+  // host blackjack
+  function firstPlayableTurn(bj) {
+    for (let s = 0; s < bj.order.length; s++) { const hs = bj.seats[bj.order[s]].hands; for (let h = 0; h < hs.length; h++) if (!hs[h].done) return { seat: s, hand: h }; }
+    return null;
+  }
+  function advanceTurn(bj) {
+    const { seat, hand } = bj.turn;
+    const curHands = bj.seats[bj.order[seat]].hands;
+    for (let h = hand + 1; h < curHands.length; h++) if (!curHands[h].done) return { seat: seat, hand: h };
+    for (let s = seat + 1; s < bj.order.length; s++) { const hs = bj.seats[bj.order[s]].hands; for (let h = 0; h < hs.length; h++) if (!hs[h].done) return { seat: s, hand: h }; }
+    return null;
+  }
+
+  function hostBjDeal() {
+    const cur = MP.bj || {};
+    if (cur.phase !== 'betting') return;
+    const bets = cur.bets || {};
+    const order = Object.keys(bets).filter(pid => bets[pid] > 0 && MP.players[pid]);
+    if (!order.length) return;
+    order.sort((a, b) => (MP.players[a].joinedAt || 0) - (MP.players[b].joinedAt || 0));
+    const seats = {};
+    order.forEach(pid => { seats[pid] = { initial: MP.players[pid].initial || initialOf(MP.players[pid].name), hands: [{ cards: [mpDraw()], bet: bets[pid], done: false, result: '', doubled: false }] }; });
+    const dealer = { cards: [mpDraw()], hole: false };
+    order.forEach(pid => seats[pid].hands[0].cards.push(mpDraw()));
+    dealer.cards.push(mpDraw()); dealer.hole = true;
+    const dealerBJ = bjIsBlackjack(dealer.cards);
+    order.forEach(pid => { const h = seats[pid].hands[0]; if (bjIsBlackjack(h.cards)) { h.done = true; h.result = 'blackjack'; } });
+    HOST.bj = { phase: 'playing', round: cur.round || 0, dealer: dealer, seats: seats, order: order, turn: null };
+    if (dealerBJ) {
+      // dealer blackjack ends the round immediately; payout resolves all hands
+      dealer.hole = false;
+      HOST.bj.phase = 'done';
+      pushBj();
+      hostBjPayout();
+      return;
+    }
+    const turn = firstPlayableTurn(HOST.bj);
+    if (!turn) { HOST.bj.phase = 'dealer'; pushBj(); setTimeout(hostBjDealer, 600); return; }
+    HOST.bj.turn = turn;
+    pushBj();
+  }
+
+  function hostBjAct(action, fromPid) {
+    const bj = HOST.bj;
+    if (!bj || bj.phase !== 'playing' || !bj.turn) return;
+    const pid = bj.order[bj.turn.seat];
+    if (pid !== fromPid) return;
+    const seat = bj.seats[pid]; const h = seat.hands[bj.turn.hand];
+    if (!h || h.done) return;
+    let advance = false;
+    if (action === 'hit') {
+      h.cards.push(mpDraw()); const t = bjHandTotal(h.cards);
+      if (t > 21) { h.done = true; h.result = 'bust'; advance = true; }
+      else if (t === 21) { h.done = true; advance = true; }
+    } else if (action === 'stand') { h.done = true; advance = true; }
+    else if (action === 'double') {
+      if (h.cards.length !== 2) return;
+      const pl = MP.players[pid]; if (!pl || pl.chips < h.bet) return;
+      adjustChips(pid, -h.bet); h.bet *= 2; h.doubled = true;
+      h.cards.push(mpDraw()); h.done = true;
+      if (bjHandTotal(h.cards) > 21) h.result = 'bust';
+      advance = true;
+    } else if (action === 'split') {
+      if (h.cards.length !== 2 || bjCardValue(h.cards[0]) !== bjCardValue(h.cards[1])) return;
+      const pl = MP.players[pid]; if (!pl || pl.chips < h.bet) return;
+      if (seat.hands.length >= 4) return;
+      adjustChips(pid, -h.bet);
+      const c2 = h.cards.pop();
+      const nh = { cards: [c2], bet: h.bet, done: false, result: '', doubled: false };
+      seat.hands.splice(bj.turn.hand + 1, 0, nh);
+      h.cards.push(mpDraw()); nh.cards.push(mpDraw());
+      if (h.cards[0].rank === 'A') { h.done = true; nh.done = true; advance = true; }
+    }
+    if (advance) {
+      const nt = advanceTurn(bj);
+      if (nt === null) { bj.phase = 'dealer'; bj.turn = null; pushBj(); setTimeout(hostBjDealer, 600); return; }
+      bj.turn = nt;
+    }
+    pushBj();
+  }
+
+  function hostBjDealer() {
+    const bj = HOST.bj;
+    if (!bj || bj.phase !== 'dealer') return;
+    bj.dealer.hole = false;
+    const anyAlive = bj.order.some(pid => bj.seats[pid].hands.some(h => h.result !== 'bust' && h.result !== 'blackjack'));
+    if (anyAlive) {
+      while (bjHandTotal(bj.dealer.cards) < 17 || (bjHandTotal(bj.dealer.cards) === 17 && bjIsSoft(bj.dealer.cards))) bj.dealer.cards.push(mpDraw());
+    }
+    pushBj();
+    setTimeout(hostBjPayout, 500);
+  }
+
+  function hostBjPayout() {
+    const bj = HOST.bj;
+    if (!bj) return;
+    const dealerTotal = bjHandTotal(bj.dealer.cards);
+    const dealerBust = dealerTotal > 21;
+    const dealerBJ = bjIsBlackjack(bj.dealer.cards);
+    bj.order.forEach(pid => {
+      bj.seats[pid].hands.forEach(h => {
+        if (h.result === 'bust') return;
+        if (h.result === 'blackjack') {
+          if (dealerBJ) { h.result = 'push'; adjustChips(pid, h.bet); }
+          else adjustChips(pid, Math.floor(h.bet * 2.5));
+          return;
+        }
+        const pt = bjHandTotal(h.cards);
+        if (dealerBJ) h.result = 'lose';
+        else if (dealerBust || pt > dealerTotal) { h.result = 'win'; adjustChips(pid, h.bet * 2); }
+        else if (pt === dealerTotal) { h.result = 'push'; adjustChips(pid, h.bet); }
+        else h.result = 'lose';
+      });
+    });
+    bj.phase = 'done'; bj.turn = null;
+    pushBj();
+  }
+
+  function hostBjNew() {
+    if (!HOST.bj || HOST.bj.phase !== 'done') return;
+    HOST.bj = { phase: 'betting', round: (HOST.bj.round || 0) + 1, bets: {} };
+    pushBj();
+  }
+
+  function hostBjOfflineCheck() {
+    if (!MP.isHost) return;
+    hostInit();
+    const bj = HOST.bj;
+    if (!bj || bj.phase !== 'playing' || !bj.turn) return;
+    const pid = bj.order[bj.turn.seat];
+    const pl = MP.players[pid];
+    if (pl && !pl.online) {
+      const h = bj.seats[pid].hands[bj.turn.hand]; h.done = true;
+      const nt = advanceTurn(bj);
+      if (nt === null) { bj.phase = 'dealer'; bj.turn = null; pushBj(); setTimeout(hostBjDealer, 600); return; }
+      bj.turn = nt; pushBj();
+    }
+  }
+
+  // ══════════════════════════════════════
+  // HANDLERS + OVERRIDES
+  // ══════════════════════════════════════
+  function highlightSelectedChip() {
+    document.querySelectorAll('.chip-btn').forEach(b => { b.style.boxShadow = ''; b.style.transform = ''; });
+    document.querySelectorAll('.chip-btn[data-value="' + MP.selectedChip + '"]').forEach(b => { b.style.boxShadow = '0 0 0 3px var(--gold)'; b.style.transform = 'translateY(-3px)'; });
+  }
+
+  function installMpHandlers() {
+    if (MP._handlers) return; MP._handlers = true;
+    document.querySelectorAll('#chipTray .chip-btn, #bjChipTray .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => { if (!MP.active) return; const raw = btn.dataset.value; MP.selectedChip = raw === 'all' ? 'all' : parseInt(raw); highlightSelectedChip(); });
+    });
+    document.querySelectorAll('.bet-zone[data-zone]').forEach(z => {
+      z.addEventListener('click', () => { if (MP.active && currentGame === 'baccarat') mpBacPlaceBet(z.dataset.zone); });
+    });
+    $('bjHandsRow').addEventListener('click', e => {
+      if (!MP.active) return;
+      const box = e.target.closest('.bj-hand-box'); if (!box) return;
+      if (MP.bj && MP.bj.phase === 'betting' && box.dataset.bjseat === MP.pid) mpBjPlaceBet();
+    });
+    $('resultBanner').addEventListener('click', () => { if (MP.active && MP.bac && MP.bac.phase === 'done') window.newRound(); });
+    // inject Clear buttons
+    if (!$('mpBacClear')) {
+      const b = document.createElement('button'); b.className = 'btn'; b.id = 'mpBacClear'; b.textContent = 'Clear'; b.style.display = 'none'; b.onclick = mpBacClear;
+      $('btnDeal').parentNode.insertBefore(b, $('btnDeal'));
+    }
+    if (!$('mpBjClear')) {
+      const b = document.createElement('button'); b.className = 'btn'; b.id = 'mpBjClear'; b.textContent = 'Clear'; b.style.display = 'none'; b.onclick = mpBjClear;
+      $('bjActions').insertBefore(b, $('bjBtnDeal'));
+    }
+    highlightSelectedChip();
+  }
+
+  // override single-player entry points
+  const _deal = window.deal, _newRound = window.newRound, _switchGame = window.switchGame;
+  const _bjDeal = window.bjDeal, _bjNewRound = window.bjNewRound;
+  const _bjHit = window.bjHit, _bjStand = window.bjStand, _bjDouble = window.bjDouble, _bjSplit = window.bjSplit;
+  window.deal = function () { if (MP.active) { mpBacDeal(); return; } return _deal.apply(this, arguments); };
+  window.newRound = function () { if (MP.active) { if (MP.bac && MP.bac.phase === 'done') sendIntent('bacNew'); return; } return _newRound.apply(this, arguments); };
+  window.switchGame = function (g) { if (MP.active) { MP.roomRef.child('meta/game').set(g); return; } return _switchGame.apply(this, arguments); };
+  window.bjDeal = function () { if (MP.active) { const bj = MP.bj || {}; if (bj.phase === 'betting' && Object.values(bj.bets || {}).reduce((a, b) => a + b, 0) > 0) sendIntent('bjDeal'); return; } return _bjDeal.apply(this, arguments); };
+  window.bjNewRound = function () { if (MP.active) { if (MP.bj && MP.bj.phase === 'done') sendIntent('bjNew'); return; } return _bjNewRound.apply(this, arguments); };
+  window.bjHit = function () { if (MP.active) { mpBjAction('hit'); return; } return _bjHit.apply(this, arguments); };
+  window.bjStand = function () { if (MP.active) { mpBjAction('stand'); return; } return _bjStand.apply(this, arguments); };
+  window.bjDouble = function () { if (MP.active) { mpBjAction('double'); return; } return _bjDouble.apply(this, arguments); };
+  window.bjSplit = function () { if (MP.active) { mpBjAction('split'); return; } return _bjSplit.apply(this, arguments); };
+
+  // expose a few helpers for the (single-player) gesture handlers to consult in MP mode
+  MP.isMyBjTurn = isMyBjTurn;
+
+  // boot
+  setupLobby();
+})();
 </script>
 
 </body>
