@@ -840,6 +840,10 @@
   }
 
   @media (max-width: 600px) {
+    /* Multiplayer button wraps below the title instead of overlapping it */
+    .mp-open-btn {
+      position: static; display: inline-block; margin: 12px auto 0;
+    }
     .table-container { width: 96vw; }
     .table { min-height: 340px; padding: 16px; }
     .card-slot { width: 44px; height: 62px; }
@@ -1004,9 +1008,6 @@
 </head>
 <body>
 
-<!-- ═══ MULTIPLAYER ═══ -->
-<button class="mp-open-btn" id="mpOpenBtn">◇ Multiplayer</button>
-
 <!-- ═══ MULTIPLAYER LOBBY ═══ -->
 <div class="mp-overlay hidden" id="mpOverlay">
   <div class="mp-card">
@@ -1035,6 +1036,8 @@
 
 <div class="header">
   <h1>Casino de Bon Amis</h1>
+  <!-- ═══ MULTIPLAYER ═══ -->
+  <button class="mp-open-btn" id="mpOpenBtn">◇ Multiplayer</button>
   <div class="game-tabs">
     <button class="game-tab active" onclick="switchGame('baccarat')">Baccarat</button>
     <button class="game-tab" onclick="switchGame('blackjack')">Blackjack</button>
