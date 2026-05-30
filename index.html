@@ -840,10 +840,6 @@
   }
 
   @media (max-width: 600px) {
-    /* Multiplayer button wraps below the title instead of overlapping it */
-    .mp-open-btn {
-      position: static; display: inline-block; margin: 12px auto 0;
-    }
     .table-container { width: 96vw; }
     .table { min-height: 340px; padding: 16px; }
     .card-slot { width: 44px; height: 62px; }
@@ -950,9 +946,9 @@
   /* Initial-stamped chips */
   .chip.mp-initial, .chip-ghost.mp-initial { color: #fff; }
 
-  /* Open-multiplayer button (top-right) */
+  /* Open-multiplayer button (in-flow, centered under the title) */
   .mp-open-btn {
-    position: fixed; top: 14px; right: 16px; z-index: 901;
+    display: inline-block; margin: 10px auto 2px; z-index: 901;
     background: linear-gradient(160deg, #1a1d27, #12141c); color: var(--gold);
     border: 1px solid var(--table-rim); border-radius: 10px; padding: 9px 14px;
     font-family: inherit; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase;
